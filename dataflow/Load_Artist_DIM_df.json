@@ -1,0 +1,97 @@
+{
+	"name": "Load_Artist_DIM_df",
+	"properties": {
+		"folder": {
+			"name": "Chinook_Abhishek"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "SnowChinook_ds",
+						"type": "DatasetReference"
+					},
+					"name": "ArtistStage"
+				},
+				{
+					"dataset": {
+						"referenceName": "SnowChinook_ds",
+						"type": "DatasetReference"
+					},
+					"name": "sourceArtistDIM"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SnowChinook_ds",
+						"type": "DatasetReference"
+					},
+					"name": "sinkArtistDIM"
+				}
+			],
+			"transformations": [
+				{
+					"name": "joinSrcTrg"
+				},
+				{
+					"name": "derivedColSrcID"
+				},
+				{
+					"name": "derivedColDateToWH"
+				},
+				{
+					"name": "RowChanges"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ARTISTID as decimal(38,0),",
+				"          NAME as string,",
+				"          CREATED_BY as string,",
+				"          CREATED_DT as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> ArtistStage",
+				"source(output(",
+				"          ARTIST_KEY as decimal(10,0),",
+				"          ARTIST_ID as decimal(10,0),",
+				"          ARTIST_NAME as string,",
+				"          SOURCE_ID as string,",
+				"          DATE_TO_WAREHOUSE as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> sourceArtistDIM",
+				"ArtistStage, sourceArtistDIM join(ARTISTID == ARTIST_ID,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinSrcTrg",
+				"joinSrcTrg derive(derived_src_id = 'chinook') ~> derivedColSrcID",
+				"derivedColSrcID derive(derived_date_to_wh = currentTimestamp()) ~> derivedColDateToWH",
+				"derivedColDateToWH alterRow(insertIf(isNull(ARTIST_ID)),",
+				"     updateIf(!isNull(ARTIST_ID)&&NAME!=ARTIST_NAME)) ~> RowChanges",
+				"RowChanges sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:true,",
+				"     upsertable:false,",
+				"     keys:['ARTIST_ID'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          ARTIST_ID = ARTISTID,",
+				"          ARTIST_NAME = NAME,",
+				"          SOURCE_ID = derived_src_id,",
+				"          DATE_TO_WAREHOUSE = derived_date_to_wh",
+				"     )) ~> sinkArtistDIM"
+			]
+		}
+	}
+}

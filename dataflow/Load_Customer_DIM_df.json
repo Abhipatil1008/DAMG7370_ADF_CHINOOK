@@ -1,0 +1,148 @@
+{
+	"name": "Load_Customer_DIM_df",
+	"properties": {
+		"folder": {
+			"name": "Chinook_Abhishek"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "SnowChinook_ds",
+						"type": "DatasetReference"
+					},
+					"name": "CustomerStage"
+				},
+				{
+					"dataset": {
+						"referenceName": "SnowChinook_ds",
+						"type": "DatasetReference"
+					},
+					"name": "sourceCustomerDIM"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SnowChinook_ds",
+						"type": "DatasetReference"
+					},
+					"name": "sinkCustomerDIM"
+				}
+			],
+			"transformations": [
+				{
+					"name": "joinSrcTrg"
+				},
+				{
+					"name": "RowChanges"
+				},
+				{
+					"name": "DerivedColSourceHashValue"
+				},
+				{
+					"name": "DerivedColIsActive"
+				},
+				{
+					"name": "DerivedColSourceID"
+				},
+				{
+					"name": "DerivedColDateToWH"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          CUSTOMERID as decimal(38,0),",
+				"          FIRSTNAME as string,",
+				"          LASTNAME as string,",
+				"          COMPANY as string,",
+				"          ADDRESS as string,",
+				"          CITY as string,",
+				"          STATE as string,",
+				"          COUNTRY as string,",
+				"          POSTALCODE as string,",
+				"          PHONE as string,",
+				"          FAX as string,",
+				"          EMAIL as string,",
+				"          SUPPORTREPID as decimal(38,0),",
+				"          CREATED_BY as string,",
+				"          CREATED_DT as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> CustomerStage",
+				"source(output(",
+				"          CUSTOMER_KEY as decimal(10,0),",
+				"          CUSTOMER_ID as decimal(10,0),",
+				"          FIRST_NAME as string,",
+				"          LAST_NAME as string,",
+				"          COMPANY_NAME as string,",
+				"          CITY as string,",
+				"          STATE as string,",
+				"          COUNTRY as string,",
+				"          ZIP_CODE as string,",
+				"          EMPLOYEE_ID as decimal(10,0),",
+				"          IS_ACTIVE as string,",
+				"          SOURCE_ID as string,",
+				"          DATE_TO_WAREHOUSE as timestamp,",
+				"          HASH_VAL as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> sourceCustomerDIM",
+				"CustomerStage, sourceCustomerDIM join(CUSTOMERID == CUSTOMER_ID,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinSrcTrg",
+				"DerivedColDateToWH alterRow(updateIf(!isNull(CUSTOMER_ID)&&source_hash_value!=HASH_VAL),",
+				"     insertIf(isNull(CUSTOMER_ID))) ~> RowChanges",
+				"joinSrcTrg derive(source_hash_value = md5(\r",
+				"    concatWS(\r",
+				"        '|',\r",
+				"        upper(trim(toString(CUSTOMERID))),\r",
+				"        upper(trim(FIRSTNAME)),\r",
+				"        upper(trim(LASTNAME)),\r",
+				"        upper(trim(COMPANY)),\r",
+				"        upper(trim(ADDRESS)),\r",
+				"        upper(trim(CustomerStage@CITY)),\r",
+				"        upper(trim(CustomerStage@STATE)),\r",
+				"        upper(trim(CustomerStage@COUNTRY)),\r",
+				"        upper(trim(POSTALCODE)),\r",
+				"        upper(trim(toString(SUPPORTREPID)))\r",
+				"    )\r",
+				")) ~> DerivedColSourceHashValue",
+				"DerivedColSourceHashValue derive(derivedcol_is_active = 'Y') ~> DerivedColIsActive",
+				"DerivedColIsActive derive(derived_source_id = 'chinook') ~> DerivedColSourceID",
+				"DerivedColSourceID derive(derived_date_to_wh = currentTimestamp()) ~> DerivedColDateToWH",
+				"RowChanges sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:true,",
+				"     upsertable:false,",
+				"     keys:['CUSTOMER_ID'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          CUSTOMER_ID = CUSTOMERID,",
+				"          FIRST_NAME = FIRSTNAME,",
+				"          LAST_NAME = LASTNAME,",
+				"          COMPANY_NAME = COMPANY,",
+				"          CITY = CustomerStage@CITY,",
+				"          STATE = CustomerStage@STATE,",
+				"          COUNTRY = CustomerStage@COUNTRY,",
+				"          ZIP_CODE = POSTALCODE,",
+				"          EMPLOYEE_ID = SUPPORTREPID,",
+				"          IS_ACTIVE = derivedcol_is_active,",
+				"          SOURCE_ID = derived_source_id,",
+				"          DATE_TO_WAREHOUSE = derived_date_to_wh,",
+				"          HASH_VAL = source_hash_value",
+				"     )) ~> sinkCustomerDIM"
+			]
+		}
+	}
+}
