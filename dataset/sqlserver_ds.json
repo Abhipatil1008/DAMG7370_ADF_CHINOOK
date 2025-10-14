@@ -1,0 +1,70 @@
+{
+	"name": "sqlserver_ds",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sqlserver",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"servername": {
+					"value": "@dataset().servername",
+					"type": "Expression"
+				},
+				"databasename": {
+					"value": "@dataset().databasename",
+					"type": "Expression"
+				},
+				"username": {
+					"value": "@dataset().username",
+					"type": "Expression"
+				},
+				"secretname": {
+					"value": "@dataset().secretname",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"schema_name": {
+				"type": "string",
+				"defaultValue": "chinook"
+			},
+			"table_name": {
+				"type": "string",
+				"defaultValue": "Customer"
+			},
+			"servername": {
+				"type": "string",
+				"defaultValue": "ASUS-ROGSTRIX"
+			},
+			"databasename": {
+				"type": "string",
+				"defaultValue": "DAMG7370FALL2025"
+			},
+			"username": {
+				"type": "string",
+				"defaultValue": "fall2025"
+			},
+			"secretname": {
+				"type": "string",
+				"defaultValue": "sqlserver-db-fall2025"
+			}
+		},
+		"folder": {
+			"name": "Chinook_Abhishek"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().schema_name",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().table_name",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

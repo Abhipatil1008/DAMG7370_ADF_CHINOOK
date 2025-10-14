@@ -1,0 +1,51 @@
+{
+	"name": "load_snowdw_artistDIM_pl",
+	"properties": {
+		"activities": [
+			{
+				"name": "loadARTIST_DIM",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.00:10:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 60,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Load_Artist_DIM_df",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"ArtistStage": {
+								"schema_name": "STAGE",
+								"table_name": "ARTIST"
+							},
+							"sourceArtistDIM": {
+								"schema_name": "DW",
+								"table_name": "ARTIST_DIM"
+							},
+							"sinkArtistDIM": {
+								"schema_name": "DW",
+								"table_name": "ARTIST_DIM"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"folder": {
+			"name": "Chinook_Abhishek"
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-10-14T22:52:41Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

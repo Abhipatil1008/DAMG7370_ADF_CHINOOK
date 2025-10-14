@@ -1,0 +1,52 @@
+{
+	"name": "ls_snow_chinook",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"accountname": {
+				"type": "string",
+				"defaultValue": "XUXUUFH-YGC33748"
+			},
+			"database": {
+				"type": "string",
+				"defaultValue": "CHINOOK_DB"
+			},
+			"warehouse": {
+				"type": "string",
+				"defaultValue": "CHINOOK_WH"
+			},
+			"username": {
+				"type": "string",
+				"defaultValue": "CHINOOK_USER"
+			},
+			"role": {
+				"type": "string",
+				"defaultValue": "CHINOOK_ROLE"
+			},
+			"host": {
+				"type": "string",
+				"defaultValue": "XUXUUFH-YGC33748.snowflakecomputing.com"
+			}
+		},
+		"annotations": [],
+		"type": "SnowflakeV2",
+		"typeProperties": {
+			"authenticationType": "Basic",
+			"accountIdentifier": "@{linkedService().accountname}",
+			"user": "@{linkedService().username}",
+			"database": "@{linkedService().database}",
+			"warehouse": "@{linkedService().warehouse}",
+			"role": "@{linkedService().role}",
+			"host": "@{linkedService().host}",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "AzureKeyVault1",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "snowChinookUserCredentials"
+			}
+		},
+		"version": "1.1"
+	}
+}

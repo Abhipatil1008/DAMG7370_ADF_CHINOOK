@@ -1,0 +1,125 @@
+{
+	"name": "load_snowstage_pl",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEachTable",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.table_names",
+						"type": "Expression"
+					},
+					"batchCount": 2,
+					"activities": [
+						{
+							"name": "parquet_to_snow_stage",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.00:10:00",
+								"retry": 2,
+								"retryIntervalInSeconds": 60,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "ParquetSource",
+									"storeSettings": {
+										"type": "AzureBlobStorageReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "ParquetReadSettings"
+									}
+								},
+								"sink": {
+									"type": "SnowflakeV2Sink",
+									"importSettings": {
+										"type": "SnowflakeImportCopyCommand",
+										"additionalCopyOptions": {
+											"ON_ERROR": "CONTINUE"
+										},
+										"additionalFormatOptions": {
+											"ERROR_ON_COLUMN_COUNT_MISMATCH": "FALSE"
+										}
+									}
+								},
+								"enableStaging": true,
+								"stagingSettings": {
+									"linkedServiceName": {
+										"referenceName": "ls_storage_sas_auth",
+										"type": "LinkedServiceReference"
+									},
+									"path": "stagedata"
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "Parquet_ds",
+									"type": "DatasetReference",
+									"parameters": {
+										"container_name": {
+											"value": "@pipeline().parameters.container_name",
+											"type": "Expression"
+										},
+										"folder_name": {
+											"value": "@pipeline().parameters.folder_name",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@concat(\n    item(),\n    '.parquet'\n)",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "SnowChinook_ds",
+									"type": "DatasetReference",
+									"parameters": {
+										"schema_name": "STAGE",
+										"table_name": {
+											"value": "@toUpper(item())",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"container_name": {
+				"type": "string",
+				"defaultValue": "stagedata"
+			},
+			"folder_name": {
+				"type": "string",
+				"defaultValue": "chinook"
+			},
+			"table_names": {
+				"type": "array",
+				"defaultValue": [
+					"Customer",
+					"Artist",
+					"Album"
+				]
+			}
+		},
+		"folder": {
+			"name": "Chinook_Abhishek"
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-10-14T22:52:40Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
