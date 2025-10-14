@@ -1,0 +1,105 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adfdamg7370fall25"
+		},
+		"AzureKeyVault1_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://kv-damg7370.vault.azure.net/"
+		},
+		"ls_snow_chinook_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "@{linkedService().database}"
+		},
+		"ls_snow_chinook_properties_typeProperties_role": {
+			"type": "string",
+			"defaultValue": "@{linkedService().role}"
+		},
+		"ls_snow_chinook_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "@{linkedService().host}"
+		},
+		"ls_sqlserver_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "@{linkedService().servername}"
+		},
+		"ls_sqlserver_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "@{linkedService().databasename}"
+		},
+		"ls_sqlserver_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "@{linkedService().username}"
+		},
+		"ls_storage_properties_typeProperties_serviceEndpoint": {
+			"type": "string",
+			"defaultValue": "https://strgdamg7370.blob.core.windows.net/"
+		},
+		"ls_storage_sas_auth_sasUri": {
+			"type": "secureString",
+			"metadata": "Secure string for 'sasUri' of 'ls_storage_sas_auth'"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "adfdamg7370fall25_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"AzureKeyVault1_properties_typeProperties_baseUrl": {
+						"value": "[parameters('AzureKeyVault1_properties_typeProperties_baseUrl')]"
+					},
+					"ls_storage_properties_typeProperties_serviceEndpoint": {
+						"value": "[parameters('ls_storage_properties_typeProperties_serviceEndpoint')]"
+					},
+					"ls_storage_sas_auth_sasUri": {
+						"value": "[parameters('ls_storage_sas_auth_sasUri')]"
+					},
+					"ls_snow_chinook_properties_typeProperties_database": {
+						"value": "[parameters('ls_snow_chinook_properties_typeProperties_database')]"
+					},
+					"ls_snow_chinook_properties_typeProperties_role": {
+						"value": "[parameters('ls_snow_chinook_properties_typeProperties_role')]"
+					},
+					"ls_snow_chinook_properties_typeProperties_host": {
+						"value": "[parameters('ls_snow_chinook_properties_typeProperties_host')]"
+					},
+					"ls_sqlserver_properties_typeProperties_server": {
+						"value": "[parameters('ls_sqlserver_properties_typeProperties_server')]"
+					},
+					"ls_sqlserver_properties_typeProperties_database": {
+						"value": "[parameters('ls_sqlserver_properties_typeProperties_database')]"
+					},
+					"ls_sqlserver_properties_typeProperties_userName": {
+						"value": "[parameters('ls_sqlserver_properties_typeProperties_userName')]"
+					}
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

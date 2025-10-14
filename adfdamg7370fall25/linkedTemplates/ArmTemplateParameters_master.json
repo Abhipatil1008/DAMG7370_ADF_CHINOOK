@@ -1,0 +1,42 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adfdamg7370fall25"
+		},
+		"AzureKeyVault1_properties_typeProperties_baseUrl": {
+			"value": "https://kv-damg7370.vault.azure.net/"
+		},
+		"ls_snow_chinook_properties_typeProperties_database": {
+			"value": "@{linkedService().database}"
+		},
+		"ls_snow_chinook_properties_typeProperties_role": {
+			"value": "@{linkedService().role}"
+		},
+		"ls_snow_chinook_properties_typeProperties_host": {
+			"value": "@{linkedService().host}"
+		},
+		"ls_sqlserver_properties_typeProperties_server": {
+			"value": "@{linkedService().servername}"
+		},
+		"ls_sqlserver_properties_typeProperties_database": {
+			"value": "@{linkedService().databasename}"
+		},
+		"ls_sqlserver_properties_typeProperties_userName": {
+			"value": "@{linkedService().username}"
+		},
+		"ls_storage_properties_typeProperties_serviceEndpoint": {
+			"value": "https://strgdamg7370.blob.core.windows.net/"
+		},
+		"ls_storage_sas_auth_sasUri": {
+			"value": ""
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
